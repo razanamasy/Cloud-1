@@ -11,8 +11,8 @@ SHOW DATABASES ;
 CREATE USER "hina"@"wordpress.srcs_my_network" IDENTIFIED BY "$MYSQL_DB_PASS";
 GRANT ALL PRIVILEGES ON hina_db.* TO "hina"@"wordpress.srcs_my_network" IDENTIFIED BY "$MYSQL_DB_PASS";
 FLUSH PRIVILEGES;
-CREATE USER "hina"@"phpmyadmin.srcs_my_network" IDENTIFIED BY "$MYSQL_DB_PASS";
-GRANT ALL PRIVILEGES ON *.* TO "hina"@"phpmyadmin.srcs_my_network" IDENTIFIED BY "$MYSQL_DB_PASS";
+CREATE USER "hinata"@"phpmyadmin.srcs_my_network" IDENTIFIED BY "geronimo";
+GRANT ALL PRIVILEGES ON *.* TO "hinata"@"phpmyadmin.srcs_my_network" IDENTIFIED BY "geronimo";
 FLUSH PRIVILEGES;
 EOF
 sleep 3
