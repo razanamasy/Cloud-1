@@ -9,7 +9,7 @@
 
 # this is only for the mysqld standalone daemon
 [mysqld]
-skip-grant-tables
+#skip-grant-tables
 user                    = root
 pid-file                = /run/mysqld/mysqld.pid
 socket                  = /run/mysqld/mysqld.sock
