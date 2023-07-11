@@ -1,0 +1,68 @@
+version: "3.6"
+
+services:
+  mariadb:
+    image: mariadb
+    container_name: mariadb
+    build: requirements/mariadb
+    env_file:
+      - .env
+    volumes:
+      - /Users/hinaraza/data/maria-data:/var/lib/mysql
+    networks:
+      - my_network
+
+  nginx:
+    image: nginx
+    container_name: nginx
+    build: requirements/nginx
+    depends_on:
+      - wordpress
+      - phpmyadmin
+    ports:
+      - "443:443"
+    volumes:
+      - /Users/hinaraza/data/wp-data:/var/www/html
+    networks:
+      - my_network
+  
+  wordpress:
+    image: wordpress
+    container_name: wordpress
+    build: requirements/wordpress
+    env_file:
+      - .env
+    depends_on:
+      - mariadb
+    volumes:
+      - /Users/hinaraza/data/wp-data:/var/www/html
+    networks:
+      - my_network
+  
+
+  phpmyadmin:
+    image: phpmyadmin
+    restart: always
+    environment:
+      - PMA_ARBITRARY=1
+    depends_on:
+      - mariadb
+    networks:
+      - my_network
+
+networks:
+  my_network:
+
+volumes:
+  maria-data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: "nfs"
+      device: "/Users/hinaraza/data/maria-data"
+  wp-data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: "nfs"
+      device: "/Users/hinaraza/data/wp-data"
