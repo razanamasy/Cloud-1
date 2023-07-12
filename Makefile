@@ -1,8 +1,8 @@
 all:
-	mkdir -p /Users/hinaraza/data/maria-data
-	mkdir -p /Users/hinaraza/data/phpmyadmin
-	mkdir -p /Users/hinaraza/data/wp-data
-	chmod 777 /Users/hinaraza/data/wp-data
+	mkdir -p /home/ubuntu/data/maria-data
+	mkdir -p /home/ubuntu/data/phpmyadmin
+	mkdir -p /home/ubuntu/data/wp-data
+	chmod 777 /home/ubuntu/data/wp-data
 	docker-compose -f srcs/docker-compose.yml up --build --detach
 
 start:

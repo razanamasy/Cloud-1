@@ -8,7 +8,7 @@ services:
     env_file:
       - .env
     volumes:
-      - /Users/hinaraza/data/maria-data:/var/lib/mysql
+      - /home/ubuntu/data/maria-data:/var/lib/mysql
     networks:
       - my_network
 
@@ -22,7 +22,7 @@ services:
     ports:
       - "443:443"
     volumes:
-      - /Users/hinaraza/data/wp-data:/var/www/html
+      - /home/ubuntu/data/wp-data:/var/www/html
     networks:
       - my_network
   
@@ -35,7 +35,7 @@ services:
     depends_on:
       - mariadb
     volumes:
-      - /Users/hinaraza/data/wp-data:/var/www/html
+      - /home/ubuntu/data/wp-data:/var/www/html
     networks:
       - my_network
   
@@ -61,10 +61,10 @@ volumes:
     driver_opts:
       o: bind
       type: "nfs"
-      device: "/Users/hinaraza/data/maria-data"
+      device: "/home/ubuntu/data/maria-data"
   wp-data:
     driver: local
     driver_opts:
       o: bind
       type: "nfs"
-      device: "/Users/hinaraza/data/wp-data"
+      device: "/home/ubuntu/data/wp-data"
