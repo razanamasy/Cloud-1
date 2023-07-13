@@ -45,8 +45,6 @@ services:
     restart: always
     environment:
       - PMA_ARBITRARY=1
-    env_file:
-      - .env
     depends_on:
       - mariadb
     networks:
