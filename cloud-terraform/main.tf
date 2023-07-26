@@ -55,7 +55,7 @@ resource "aws_security_group" "lb_sg" {
 
 
 
-resource "aws_lb" "elb" {
+resource "aws_lb" "my_elb" {
   name               = "web-lb"
   internal           = false
   load_balancer_type = "application"
@@ -69,8 +69,8 @@ resource "aws_lb" "elb" {
   ]
 }
 
-resource "aws_lb_listener" "elb" {
-  load_balancer_arn = aws_lb.elb.arn
+resource "aws_lb_listener" "my_elb" {
+  load_balancer_arn = aws_lb.my_elb.arn
   port              = "80"
   protocol          = "HTTP"
   default_action {
@@ -78,3 +78,96 @@ resource "aws_lb_listener" "elb" {
     target_group_arn = aws_lb_target_group.tg_lb.arn
   }
 }
+
+resource "aws_security_group" "web_sg" {
+  name_prefix = "my_sg_web"
+
+  ingress {
+    description = "Allow HTTPS traffic (IPv4)"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description      = "Allow HTTPS traffic (IPv6)"
+    from_port        = 443
+    to_port          = 443
+    protocol         = "tcp"
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+  ingress {
+    description = "Allow HTTP traffic (IPv4)"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description      = "Allow HTTP traffic (IPv6)"
+    from_port        = 80
+    to_port          = 80
+    protocol         = "tcp"
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+  ingress {
+    description     = "Allow HTTPS traffic SG LB"
+    from_port       = 443
+    to_port         = 443
+    protocol        = "tcp"
+    security_groups = [aws_security_group.lb_sg.id]
+  }
+
+  tags = {
+    Name = "my_sg_web"
+  }
+}
+
+
+resource "aws_security_group" "rds_sg" {
+  name_prefix = "my_sg_rds"
+
+  ingress {
+    description     = "Allow MYSQL/AURORA traffic from web sg"
+    from_port       = 3306
+    to_port         = 3306
+    protocol        = "tcp"
+    security_groups = [aws_security_group.web_sg.id]
+  }
+
+  tags = {
+    Name = "my_sg_rds"
+  }
+}
+
+
+
+
+resource "aws_db_instance" "my_rds" {
+  allocated_storage   = 10
+  db_name             = "hina_db"
+  engine              = "mariadb"
+  engine_version      = "10.6.14"
+  instance_class      = "db.t3.micro"
+  username            = "hina"
+  password            = "geronimo"
+  skip_final_snapshot = true
+}
+
+resource "local_file" "env_file" {
+  filename = "../inception/srcs/terraform.env"
+  content  = "LOADBALANCER_DNS=${aws_lb.my_elb.dns_name} \nRDS_ENDPOINT=${element(split(":", aws_db_instance.my_rds.endpoint), 0)}"
+}
+
+output "elb_dns_name" {
+  value = aws_lb.my_elb.dns_name
+}
+
+output "rds_endpoint" {
+  value = aws_db_instance.my_rds.endpoint
+}
+
