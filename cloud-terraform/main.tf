@@ -177,7 +177,7 @@ resource "aws_security_group" "efs_sg" {
     description     = "Allow my wp to access and mount my EFS"
     from_port       = 2049
     to_port         = 2049
-    protocol        = "NFS"
+    protocol        = "tcp"
     security_groups = [aws_security_group.web_sg.id]
   }
 
@@ -187,25 +187,12 @@ resource "aws_security_group" "efs_sg" {
 }
 
 resource "aws_efs_file_system" "efs_wp" {
-  creation_token = "my-product"
+  creation_token = "my-efs-wp"
   performance_mode                = "generalPurpose"
   throughput_mode                 = "bursting"
 
   lifecycle_policy {
     transition_to_ia = "AFTER_30_DAYS"
-  }
-
-	  # Mount targets / security group
-  mount_targets = {
-    "eu-west-3a" = {
-      subnet_id = "subnet-020264f77b27f822e"
-    }
-    "eu-west-3b" = {
-      subnet_id = "subnet-084127b0de98ebb81"
-    }
-    "eu-west-3c" = {
-      subnet_id = "subnet-003dc16ba597f595b"
-    }
   }
 }
 
@@ -215,17 +202,23 @@ resource "aws_efs_mount_target" "efs_mount_target_a" {
   security_groups = [aws_security_group.efs_sg.id]
 }
 
-resource "aws_efs_mount_target" "efs_mount_target_a" {
+resource "aws_efs_mount_target" "efs_mount_target_b" {
   file_system_id = aws_efs_file_system.efs_wp.id
   subnet_id      = "subnet-084127b0de98ebb81"
   security_groups = [aws_security_group.efs_sg.id]
 }
 
-resource "aws_efs_mount_target" "efs_mount_target_a" {
+resource "aws_efs_mount_target" "efs_mount_target_c" {
   file_system_id = aws_efs_file_system.efs_wp.id
-  subnet_id      =  "subnet-084127b0de98ebb81"
+  subnet_id      =  "subnet-003dc16ba597f595b"
   security_groups = [aws_security_group.efs_sg.id]
 }
+
+resource "aws_efs_access_point" "access_point_efs" {
+  file_system_id = aws_efs_file_system.efs_wp.id
+}
+
+
 
 
 
