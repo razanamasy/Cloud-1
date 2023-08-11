@@ -163,6 +163,75 @@ resource "local_file" "env_file" {
   content  = "LOADBALANCER_DNS=${aws_lb.my_elb.dns_name} \nRDS_ENDPOINT=${element(split(":", aws_db_instance.my_rds.endpoint), 0)}"
 }
 
+
+
+
+
+
+
+
+resource "aws_security_group" "efs_sg" {
+  name_prefix = "my_sg_efs"
+
+  ingress {
+    description     = "Allow my wp to access and mount my EFS"
+    from_port       = 2049
+    to_port         = 2049
+    protocol        = "NFS"
+    security_groups = [aws_security_group.web_sg.id]
+  }
+
+  tags = {
+    Name = "my_sg_efs"
+  }
+}
+
+resource "aws_efs_file_system" "efs_wp" {
+  creation_token = "my-product"
+  performance_mode                = "generalPurpose"
+  throughput_mode                 = "bursting"
+
+  lifecycle_policy {
+    transition_to_ia = "AFTER_30_DAYS"
+  }
+
+	  # Mount targets / security group
+  mount_targets = {
+    "eu-west-3a" = {
+      subnet_id = "subnet-020264f77b27f822e"
+    }
+    "eu-west-3b" = {
+      subnet_id = "subnet-084127b0de98ebb81"
+    }
+    "eu-west-3c" = {
+      subnet_id = "subnet-003dc16ba597f595b"
+    }
+  }
+}
+
+resource "aws_efs_mount_target" "efs_mount_target_a" {
+  file_system_id = aws_efs_file_system.efs_wp.id
+  subnet_id      =  "subnet-020264f77b27f822e"
+  security_groups = [aws_security_group.efs_sg.id]
+}
+
+resource "aws_efs_mount_target" "efs_mount_target_a" {
+  file_system_id = aws_efs_file_system.efs_wp.id
+  subnet_id      = "subnet-084127b0de98ebb81"
+  security_groups = [aws_security_group.efs_sg.id]
+}
+
+resource "aws_efs_mount_target" "efs_mount_target_a" {
+  file_system_id = aws_efs_file_system.efs_wp.id
+  subnet_id      =  "subnet-084127b0de98ebb81"
+  security_groups = [aws_security_group.efs_sg.id]
+}
+
+
+
+
+
+
 output "elb_dns_name" {
   value = aws_lb.my_elb.dns_name
 }
