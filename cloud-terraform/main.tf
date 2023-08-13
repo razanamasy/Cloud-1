@@ -1,4 +1,5 @@
 
+#LoadBalancer target-group (target les EC2) - LoadBalancer sg- LoadBalancer - LoadBalancer listener
 resource "aws_lb_target_group" "tg_lb" {
   name        = "tg-lb"
   port        = 443
@@ -7,11 +8,11 @@ resource "aws_lb_target_group" "tg_lb" {
   target_type = "instance"
 }
 
-
 variable "security_group_name" {
   description = "Name of the security group"
   default     = "my-sg-lb"
 }
+
 
 resource "aws_security_group" "lb_sg" {
   name_prefix = var.security_group_name
@@ -54,7 +55,6 @@ resource "aws_security_group" "lb_sg" {
 }
 
 
-
 resource "aws_lb" "my_elb" {
   name               = "web-lb"
   internal           = false
@@ -79,6 +79,8 @@ resource "aws_lb_listener" "my_elb" {
   }
 }
 
+
+#Security group EC2 
 resource "aws_security_group" "web_sg" {
   name_prefix = "my_sg_web"
 
@@ -128,6 +130,9 @@ resource "aws_security_group" "web_sg" {
 }
 
 
+
+
+#RDS sg - RDS
 resource "aws_security_group" "rds_sg" {
   name_prefix = "my_sg_rds"
 
@@ -143,9 +148,6 @@ resource "aws_security_group" "rds_sg" {
     Name = "my_sg_rds"
   }
 }
-
-
-
 
 resource "aws_db_instance" "my_rds" {
   allocated_storage   = 10
@@ -169,7 +171,7 @@ resource "local_file" "env_file" {
 
 
 
-
+#EFS SG - EFS - EFS Mount targets - EFS Access point
 resource "aws_security_group" "efs_sg" {
   name_prefix = "my_sg_efs"
 
@@ -220,7 +222,67 @@ resource "aws_efs_access_point" "access_point_efs" {
 
 
 
+#Instance EC2 - ne pas oublier de generer la keypair
+resource "aws_instance" "wp-web" {
+  ami           = "ami-05b5a865c3579bbc4" #Ubuntu
+  instance_type = "t2.micro"
+	key_name = "wp-keypair-mac"
 
+  tags = {
+    Name = "wp-web"
+  }
+
+	provisioner "remote-exec" {
+    inline = [
+			"mkdir /home/ubuntu/app",
+    ]
+		connection {
+  	   type        = "ssh"
+  	   user        = "ubuntu"  # Utilisateur SSH de l'instance EC2
+  	   private_key = file("wp-keypair-mac.pem")  # Chemin vers votre clé privée
+  	   host        = self.public_ip  # L'adresse IP publique de l'instance EC2
+			 insecure    = true
+  	}
+  }
+
+	provisioner "file" {
+    source      = "../inception/"  # Chemin local du dossier que vous souhaitez copier
+    destination = "/home/ubuntu/app"  # Chemin sur l'instance EC2
+		connection {
+  	   type        = "ssh"
+  	   user        = "ubuntu"  # Utilisateur SSH de l'instance EC2
+  	   private_key = file("wp-keypair-mac.pem")  # Chemin vers votre clé privée
+  	   host        = self.public_ip  # L'adresse IP publique de l'instance EC2
+			 insecure    = true
+  	}
+  }
+
+	provisioner "remote-exec" {
+    inline = [
+			"sudo apt-get update",
+			"sudo apt-get install -y ca-certificates curl gnupg",
+			"sudo install -y -m 0755 -d /etc/apt/keyrings",
+			"curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg",
+			"sudo chmod a+r /etc/apt/keyrings/docker.gpg",
+			"echo \\",
+      "\"deb [arch=\\\"$(dpkg --print-architecture)\\\" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \\",
+      "\\\"$(. /etc/os-release && echo \\\"$VERSION_CODENAME\\\")\\\" stable\\\" | \\",
+      "sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\"",
+			"sudo apt-get update",
+			"sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin",
+			"sudo apt install -y make",
+			"sudo apt install -y docker-compose"
+    ]
+		connection {
+  	   type        = "ssh"
+  	   user        = "ubuntu"  # Utilisateur SSH de l'instance EC2
+  	   private_key = file("wp-keypair-mac.pem")  # Chemin vers votre clé privée
+  	   host        = self.public_ip  # L'adresse IP publique de l'instance EC2
+			 insecure    = true
+  	}
+  }
+
+}
 
 
 
