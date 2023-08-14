@@ -2,15 +2,13 @@
 
 wppath="/var/www/html"
 
-sleep 10
-
-
 # Check if the WordPress website already exists
 if wp core is-installed --allow-root --path="$wppath"; then
     echo "WordPress website already exists. Skipping setup."
 else
     # Execute WordPress setup commands
 
+	export firsttime="yes"
 	yes | wp core download --allow-root --path="$wppath" 
 	ls -la "$wppath"
     wp config create --dbpass=$MYSQL_DB_PASS --path="$wppath" --allow-root --dbname=hina_db --dbuser=hina --dbhost=$RDS_ENDPOINT --config-file="$wppath/wp-config.php"

@@ -224,6 +224,7 @@ resource "aws_efs_access_point" "access_point_efs" {
 
 #Instance EC2 - ne pas oublier de generer la keypair
 resource "aws_instance" "wp-web" {
+	depends_on = [local_file.env_file]
   ami           = "ami-05b5a865c3579bbc4" #Ubuntu
   instance_type = "t2.micro"
 	key_name = "wp-keypair-mac"

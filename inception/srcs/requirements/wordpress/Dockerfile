@@ -19,5 +19,8 @@ RUN rm /etc/php/7.3/fpm/php-fpm.conf
 COPY conf/www.conf /etc/php/7.3/fpm/php-fpm.conf
 
 RUN mkdir -p var/www/html
+
+RUN mv start.sh /var/www/html/start.sh
+
 EXPOSE 9000
-CMD ["bash", "start.sh"]
+CMD ["bash", "/var/www/html/start.sh"]
