@@ -1,7 +1,7 @@
 
-#LoadBalancer target-group (target les EC2) - LoadBalancer sg- LoadBalancer - LoadBalancer listener
+#LoadBalancer target-group (target les EC2) - LoadBalancer sg- LoadBalancer - Certificate ACM - LoadBalancer listener
 resource "aws_lb_target_group" "tg_lb" {
-  name        = "tg-lb"
+  name        = "tglb"
   port        = 443
   protocol    = "HTTPS"
   vpc_id      = "vpc-0f85db5d914df8aaf"
@@ -69,16 +69,26 @@ resource "aws_lb" "my_elb" {
   ]
 }
 
+resource "aws_acm_certificate" "cert_lb" {
+  domain_name       = aws_lb.my_elb.dns_name
+  validation_method = "DNS"
+}
+
+resource "aws_acm_certificate_validation" "cert_valid_lb" {
+  certificate_arn         = aws_acm_certificate.cert_lb.arn
+  validation_record_fqdns = [aws_lb.my_elb.dns_name]
+}
+
 resource "aws_lb_listener" "my_elb" {
   load_balancer_arn = aws_lb.my_elb.arn
-  port              = "80"
-  protocol          = "HTTP"
+  port              = "443"
+  protocol          = "HTTPS"
+	certificate_arn = aws_acm_certificate_validation.cert_valid_lb.certificate_arn
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.tg_lb.arn
   }
 }
-
 
 #Security group EC2 
 resource "aws_security_group" "web_sg" {
@@ -283,9 +293,28 @@ resource "aws_instance" "wp-web" {
   	}
   }
 
+	provisioner "remote-exec" {
+    inline = [
+			"cd /home/ubuntu/app",
+			"sudo make",
+    ]
+		connection {
+  	   type        = "ssh"
+  	   user        = "ubuntu"  # Utilisateur SSH de l'instance EC2
+  	   private_key = file("wp-keypair-mac.pem")  # Chemin vers votre clé privée
+  	   host        = self.public_ip  # L'adresse IP publique de l'instance EC2
+			 insecure    = true
+  	}
+  }
+
 }
 
-
+#TARGET GROUP ATTACHMENT
+resource "aws_lb_target_group_attachment" "ec2_to_tglb" {
+    target_group_arn = aws_lb_target_group.tg_lb.arn
+    target_id        = aws_instance.wp-web.id 
+    port             = 443
+}
 
 
 output "elb_dns_name" {
