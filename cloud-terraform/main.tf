@@ -17,6 +17,14 @@ variable "security_group_name" {
 resource "aws_security_group" "lb_sg" {
   name_prefix = var.security_group_name
 
+  egress {
+    description = "Allow all outbound traffic"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"  # -1 indique tous les protocoles
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   ingress {
     description = "Allow HTTPS traffic (IPv4)"
     from_port   = 443
@@ -69,21 +77,12 @@ resource "aws_lb" "my_elb" {
   ]
 }
 
-resource "aws_acm_certificate" "cert_lb" {
-  domain_name       = aws_lb.my_elb.dns_name
-  validation_method = "DNS"
-}
 
-resource "aws_acm_certificate_validation" "cert_valid_lb" {
-  certificate_arn         = aws_acm_certificate.cert_lb.arn
-  validation_record_fqdns = [aws_lb.my_elb.dns_name]
-}
-
-resource "aws_lb_listener" "my_elb" {
+resource "aws_lb_listener" "my_elb_listen" {
   load_balancer_arn = aws_lb.my_elb.arn
   port              = "443"
   protocol          = "HTTPS"
-	certificate_arn = aws_acm_certificate_validation.cert_valid_lb.certificate_arn
+  certificate_arn = "arn:aws:acm:eu-west-3:587743568684:certificate/5b4d5605-3431-40ff-a8df-be9f98db7a80"  # ARN de votre certificat ACM
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.tg_lb.arn
@@ -93,6 +92,22 @@ resource "aws_lb_listener" "my_elb" {
 #Security group EC2 
 resource "aws_security_group" "web_sg" {
   name_prefix = "my_sg_web"
+
+  egress {
+    description = "Allow all outbound traffic"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"  # -1 indique tous les protocoles
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "Allow SSH traffic From my IP"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["86.245.147.9/32"]
+  }
 
   ingress {
     description = "Allow HTTPS traffic (IPv4)"
@@ -238,6 +253,7 @@ resource "aws_instance" "wp-web" {
   ami           = "ami-05b5a865c3579bbc4" #Ubuntu
   instance_type = "t2.micro"
 	key_name = "wp-keypair-mac"
+  vpc_security_group_ids = [aws_security_group.web_sg.id]
 
   tags = {
     Name = "wp-web"
