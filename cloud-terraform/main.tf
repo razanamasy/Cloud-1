@@ -77,6 +77,17 @@ resource "aws_lb" "my_elb" {
   ]
 }
 
+resource "aws_route53_record" "alias_route53_record" {
+  zone_id = "Z02170383FDAMUU6TL6ZP" # a retrouver dans zone --> route 53 sur mon domaine hrazanam.net 
+  name    = "hrazanam.net" # Replace with your name/domain/subdomain
+  type    = "A"
+
+  alias {
+    name                   = aws_lb.my_elb.dns_name
+    zone_id                = aws_lb.my_elb.zone_id
+    evaluate_target_health = true
+  }
+}
 
 resource "aws_lb_listener" "my_elb_listen" {
   load_balancer_arn = aws_lb.my_elb.arn
@@ -259,6 +270,7 @@ resource "aws_instance" "wp-web" {
     Name = "wp-web"
   }
 
+
 	provisioner "remote-exec" {
     inline = [
 			"mkdir /home/ubuntu/app",
@@ -309,6 +321,7 @@ resource "aws_instance" "wp-web" {
   	}
   }
 
+#lancement docker-compose
 	provisioner "remote-exec" {
     inline = [
 			"cd /home/ubuntu/app",
@@ -323,15 +336,97 @@ resource "aws_instance" "wp-web" {
   	}
   }
 
+#installation efs utils - driver to access efs
+	provisioner "remote-exec" {
+    inline = [
+			"cd /",
+			"sudo apt-get update",
+			"sudo apt-get -y install git binutils",
+			"sudo git clone https://github.com/aws/efs-utils",
+			"cd /efs-utils",
+			"sudo ./build-deb.sh",
+			"sudo apt-get -y install ./build/amazon-efs-utils*deb",
+    ]
+		connection {
+  	   type        = "ssh"
+  	   user        = "ubuntu"  # Utilisateur SSH de l'instance EC2
+  	   private_key = file("wp-keypair-mac.pem")  # Chemin vers votre clé privée
+  	   host        = self.public_ip  # L'adresse IP publique de l'instance EC2
+			 insecure    = true
+  	}
+  }
+
+#Montage EFS
+	provisioner "remote-exec" {
+    inline = [
+			"cd /",
+			"echo \"${aws_efs_file_system.efs_wp.id} /home/ubuntu/data efs _netdev,tls,accesspoint=${aws_efs_access_point.access_point_efs.id} 0 0\" | sudo tee -a /etc/fstab",
+			"sudo mount -fav",
+    ]
+		connection {
+  	   type        = "ssh"
+  	   user        = "ubuntu"  # Utilisateur SSH de l'instance EC2
+  	   private_key = file("wp-keypair-mac.pem")  # Chemin vers votre clé privée
+  	   host        = self.public_ip  # L'adresse IP publique de l'instance EC2
+			 insecure    = true
+  	}
+  }
+
 }
 
-#TARGET GROUP ATTACHMENT
+#CREATE AMI FROM INSTANCE
+resource "aws_ami_from_instance" "ami-with-efs" {
+  name               = "AMI with EFS"
+  source_instance_id = aws_instance.wp-web.id
+	depends_on = [
+    aws_instance.wp-web,
+  ]
+}
+
+resource "aws_launch_template" "template-with-efs" {
+  name_prefix   = "web-sg-template-with-efs"
+  image_id      = aws_ami_from_instance.ami-with-efs.id  # Remplacez par l'ID de votre AMI
+  instance_type = "t2.micro"
+	key_name = "wp-keypair-mac"
+  vpc_security_group_ids = [aws_security_group.web_sg.id]
+
+#  block_device_mappings {
+#    device_name = "/dev/sda1"
+#    ebs {
+#      volume_size = 30
+#    }
+#  }
+}
+
+#TARGET GROUP ATTACHMENT for 1st instance
 resource "aws_lb_target_group_attachment" "ec2_to_tglb" {
     target_group_arn = aws_lb_target_group.tg_lb.arn
     target_id        = aws_instance.wp-web.id 
     port             = 443
 }
 
+resource "aws_autoscaling_group" "group_instance" {
+  min_size             = 2
+  max_size             = 2
+  desired_capacity     = 2
+  launch_template { 
+			id = aws_launch_template.template-with-efs.id
+			version = aws_launch_template.template-with-efs.latest_version
+	}
+  vpc_zone_identifier  =  [
+    "subnet-020264f77b27f822e",
+    "subnet-084127b0de98ebb81",
+    "subnet-003dc16ba597f595b",
+  ]
+	health_check_grace_period = 300
+	health_check_type    = "ELB"
+}
+
+#Attach all the future instance autocreate in target group
+resource "aws_autoscaling_attachment" "asg_attachment_elb" {
+  autoscaling_group_name = aws_autoscaling_group.group_instance.id
+  lb_target_group_arn = aws_lb_target_group.tg_lb.arn
+}
 
 output "elb_dns_name" {
   value = aws_lb.my_elb.dns_name

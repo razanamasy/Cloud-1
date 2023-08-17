@@ -3,8 +3,8 @@
 export wppath="/var/www/html"
 
 sleep 10
-# Check if the WordPress website already exists
-# Execute WordPress setup commands
+
+# Execute WordPress setup commands if wp not install exist
 yes | wp core download --allow-root --path="$wppath"
 
 cd $wppath
