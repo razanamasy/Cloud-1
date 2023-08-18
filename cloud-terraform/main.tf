@@ -270,10 +270,10 @@ resource "aws_instance" "wp-web" {
     Name = "wp-web"
   }
 
-
 	provisioner "remote-exec" {
     inline = [
 			"mkdir /home/ubuntu/app",
+#			"sudo touch /home/ubuntu/first",
     ]
 		connection {
   	   type        = "ssh"

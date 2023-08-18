@@ -1,5 +1,4 @@
 all:
-	mkdir -p /home/ubuntu/data/maria-data
 	mkdir -p /home/ubuntu/data/phpmyadmin
 	mkdir -p /home/ubuntu/data/wp-data
 	chmod 777 /home/ubuntu/data/wp-data
