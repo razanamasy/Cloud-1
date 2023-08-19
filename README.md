@@ -32,15 +32,15 @@ https://repost.aws/fr/knowledge-center/acm-certificate-pending-validation
 La commande permet d'obtenir la valeur associée à l'enregistrement CNAME si ce dernier a été ajouté à la bonne configuration DNS, et propagé avec succès.
 
 ## Techno
-### Docker-compose
-### AWS
-### Terraform
+Docker-compose <br>
+AWS <br>
+Terraform <br>
 
 ## Ressources AWS 
-### Loadbalancer Applicatif
-### Instance EC2
-### AMI from instance & Template
-### Target group / Autoscaling group
-### EFS
-### RDS
-### ACM
+Loadbalancer Applicatif <br>
+Instance EC2 <br>
+AMI from instance & Template <br>
+Target group / Autoscaling group <br>
+EFS <br>
+RDS <br>
+ACM <br>
