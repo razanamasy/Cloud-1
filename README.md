@@ -20,13 +20,13 @@ Recuperation du nom des subnets dans votre console AWS
 1) Acheter un nom de domain (ici hrazanam.net) avec route 53 → ne pas oublier de l’indiquer dans le fichier wordpress start.sh.
 	→ Nécessaire car certificat ACM ne marche pas avec domaine AWS
 
-2) Générer un certificat ssl ACM avec hrazanam.net <sub>(*)</sub>
+2) Générer un certificat ssl ACM avec hrazanam.net <sup>(*)</sup>
 
 ##### note 1 : Affiliation du certificat au LB est automatisé avec terraform 
 
 ##### note 2 : L’enregistrement DNS du LB a hrazanam est automatisé avec terraform 
 
-###### <sub>(*)</sub> Si le certificat est en pending : 
+###### <sup>(*)</sup> Si le certificat est en pending : 
 CMD : dig +short hrazanam.net
 https://repost.aws/fr/knowledge-center/acm-certificate-pending-validation
 La commande permet d'obtenir la valeur associée à l'enregistrement CNAME si ce dernier a été ajouté à la bonne configuration DNS, et propagé avec succès.
