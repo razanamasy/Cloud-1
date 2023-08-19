@@ -27,7 +27,7 @@ Recuperation du nom des subnets dans votre console AWS
 ##### note 2 : L’enregistrement DNS du LB a hrazanam est automatisé avec terraform 
 
 ###### <sup>(*)</sup> Si le certificat est en pending : 
-CMD : dig +short hrazanam.net
+CMD : dig +short hrazanam.net <br>
 https://repost.aws/fr/knowledge-center/acm-certificate-pending-validation
 La commande permet d'obtenir la valeur associée à l'enregistrement CNAME si ce dernier a été ajouté à la bonne configuration DNS, et propagé avec succès.
 
