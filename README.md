@@ -44,3 +44,4 @@ Target group / Autoscaling group <br>
 EFS <br>
 RDS <br>
 ACM <br>
+Route53 <br>
