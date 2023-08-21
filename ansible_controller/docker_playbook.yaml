@@ -2,13 +2,9 @@
   hosts: aws_ec2
   tasks:
     - name: start containers
-      command: docker-compose -f ../inception/srcs/docker-compose.yml start
-      args:
-        chdir: ../inception/srcs
+      command: sudo docker-compose -f app/srcs/docker-compose.yml start
       tags: ['start']
 
     - name: stop containers
-      command: docker-compose -f ../inception/srcs/docker-compose.yml stop
-      args:
-        chdir: ../inception/srcs
+      command: sudo docker-compose -f app/srcs/docker-compose.yml stop
       tags: ['stop']
