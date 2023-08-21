@@ -40,10 +40,6 @@ Terraform <br>
 Utilisation de Ansible pour docker-compose start et stop sur les instance eu-west-3 <br>
 Les instance sont dynamiquement detectées <br>
 La commande: ansible-inventory -i aws_ec2.yaml --graph permet de lister les instances target <br>
-ansible-playbook -i aws_ec2.yaml docker_playbook.yaml --user ubuntu --key-file <br>
-wp-keypair-mac.pem --tags stop <br>
-ansible-playbook -i aws_ec2.yaml docker_playbook.yaml --user ubuntu --key-file <br>
-wp-keypair-mac.pem --tags start <br>
 
 Ne pas oublier la key-pair (voir pré-requis) <br>
 
@@ -59,8 +55,16 @@ Route53 <br>
 
 ## Usage
 Après avoir vérifié les pré-requis, (installations, IAM user, key-pair, nom de domaine, ip security group...) aller dans le dossier cloud-terraform <br>
+
+### Création et deploiement de l'architecture
 terraform init <br>
 terraform validate <br>
 terraform plan <br>
 terraform apply | yes <br>
+
+### Test ansible
+ansible-playbook -i aws_ec2.yaml docker_playbook.yaml --user ubuntu --key-file <br>
+wp-keypair-mac.pem --tags stop <br>
+ansible-playbook -i aws_ec2.yaml docker_playbook.yaml --user ubuntu --key-file <br>
+wp-keypair-mac.pem --tags start <br>
 
