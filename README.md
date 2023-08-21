@@ -13,7 +13,7 @@ Ansible
 #### MY IP
 Ne pas oublier de changer myip dans les security-group instance
 Pair de clé 
-créer keypair pour ec2 avec le bon nom et mettre dans dossier cloud-terraform
+créer keypair pour ec2 avec le bon nom et mettre dans dossier cloud-terraform ET ansible
 Recuperation du nom des subnets dans votre console AWS
 
 #### Nom de domaine et certificat ACM
@@ -35,6 +35,17 @@ La commande permet d'obtenir la valeur associée à l'enregistrement CNAME si ce
 Docker-compose <br>
 AWS <br>
 Terraform <br>
+
+## Ansible dynamic inventory
+Utilisation de Ansible pour docker-compose start et stop sur les instance eu-west-3
+Les instance sont dynamiquement detectées
+La commande: ansible-inventory -i aws_ec2.yaml --graph permet de lister les instances target
+ansible-playbook -i aws_ec2.yaml docker_playbook.yaml --user ubuntu --key-file
+wp-keypair-mac.pem --tags stop
+ansible-playbook -i aws_ec2.yaml docker_playbook.yaml --user ubuntu --key-file
+wp-keypair-mac.pem --tags start
+
+Ne pas oublier la key-pair (voir pré-requis)
 
 ## Ressources AWS 
 Loadbalancer Applicatif <br>
