@@ -54,15 +54,18 @@ ACM <br>
 Route53 <br>
 
 ## Usage
-Après avoir vérifié les pré-requis, (installations, IAM user, key-pair, nom de domaine, ip security group...) aller dans le dossier cloud-terraform <br>
+Après avoir vérifié les pré-requis, (installations, IAM user, key-pair, nom de domaine, ip security group...) <br>
 
 ### Création et deploiement de l'architecture
+Aller dans le dossier cloud-terraform <br> <br>
 terraform init <br>
 terraform validate <br>
 terraform plan <br>
 terraform apply | yes <br>
 
 ### Test ansible
+Aller dans le dossier ansible_controller <br> <br>
+
 ansible-playbook -i aws_ec2.yaml docker_playbook.yaml --user ubuntu --key-file <br>
 wp-keypair-mac.pem --tags stop <br>
 ansible-playbook -i aws_ec2.yaml docker_playbook.yaml --user ubuntu --key-file <br>
