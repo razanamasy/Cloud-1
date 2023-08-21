@@ -1,0 +1,14 @@
+- name: Simple docker-compose start and stop because it seems mandatory
+  hosts: aws_ec2
+  tasks:
+    - name: start containers
+      command: docker-compose -f ../inception/srcs/docker-compose.yml start
+      args:
+        chdir: ../inception/srcs
+      tags: ['start']
+
+    - name: stop containers
+      command: docker-compose -f ../inception/srcs/docker-compose.yml stop
+      args:
+        chdir: ../inception/srcs
+      tags: ['stop']
