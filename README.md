@@ -29,7 +29,14 @@ A recuperer dans votre console AWS
 
 #### Credentials
 ##### Pair de clé <br>
-créer keypair pour ec2 avec le bon nom et mettre dans dossier cloud-terraform ET ansible <br><br>
+Créer keypair pour ec2 avec le bon nom et mettre dans dossier cloud-terraform ET ansible <br>
+<br>
+Terraform :
+Modifier en fonction dans main.tf le nom de la pair de clé :<br>
+ressource aws_instance wp-web et dans chacun des provisionner<br>
+<br>
+Ansible :
+Modifier la commande de lancement en fonction (voir Usage ci-dessous)
 
 ##### .env <br>
 Importer votre propre fichier .env à mettre dans inception/srcs <br>
