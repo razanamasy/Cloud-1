@@ -12,13 +12,28 @@ Ansible
 
 #### MY IP
 Ne pas oublier de changer myip dans les security-group instance
-Pair de clé 
-créer keypair pour ec2 avec le bon nom et mettre dans dossier cloud-terraform ET ansible
-Recuperation du nom des subnets dans votre console AWS
 
 #### Nom de domaine et certificat ACM
 1) Acheter un nom de domain (ici hrazanam.net) avec route 53 → ne pas oublier de l’indiquer dans le fichier wordpress start.sh.
 	→ Nécessaire car certificat ACM ne marche pas avec domaine AWS
+
+#### Subnets id pour Load Balancer (terraform)
+A recuperer dans votre console AWS
+
+#### Credentials
+##### Pair de clé <br>
+créer keypair pour ec2 avec le bon nom et mettre dans dossier cloud-terraform ET ansible <br><br>
+
+##### .env <br>
+Importer votre propre fichier .env à mettre dans inception/srcs <br>
+
+MYSQL_DB_NAME <br>
+MYSQL_DB_USER <br>
+MYSQL_DB_PASS <br>
+ADMIN_PASS <br>
+
+PMA_USER <br>
+PMA_PASSWORD <br>
 
 2) Générer un certificat ssl ACM avec hrazanam.net <sup>(*)</sup>
 
