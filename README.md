@@ -11,11 +11,13 @@ Terraform
 Ansible
 
 #### MY IP
-Ne pas oublier de changer myip dans les security-group instance
+Ne pas oublier de changer myip dans les security-group de l'instance EC2 wp-wep
 
 #### Nom de domaine et certificat ACM
-1) Acheter un nom de domain (ici hrazanam.net) avec route 53 → ne pas oublier de l’indiquer dans le fichier wordpress start.sh.
-	→ Nécessaire car certificat ACM ne marche pas avec domaine AWS
+1) Acheter un nom de domain (ici hrazanam.net) avec route 53 → ne pas oublier de l’indiquer dans le fichier wordpress start.sh.<br>
+	→ Nécessaire car certificat ACM ne marche pas avec les domaines AWS (donc le loadbalancer)<br><br>
+
+2) Générer un certificat ssl ACM avec hrazanam.net <sup>(*)</sup><br>
 
 #### Subnets id pour Load Balancer (terraform)
 A recuperer dans votre console AWS
@@ -35,8 +37,6 @@ ADMIN_PASS <br>
 PMA_USER <br>
 PMA_PASSWORD <br>
 
-2) Générer un certificat ssl ACM avec hrazanam.net <sup>(*)</sup>
-
 ##### note 1 : Affiliation du certificat au LB est automatisé avec terraform 
 
 ##### note 2 : L’enregistrement DNS du LB a hrazanam est automatisé avec terraform 
@@ -52,7 +52,7 @@ AWS <br>
 Terraform <br>
 
 ## Ansible dynamic inventory
-Utilisation de Ansible pour docker-compose start et stop sur les instance eu-west-3 <br>
+Utilisation de Ansible pour docker-compose start et stop sur toutes les instance eu-west-3 <br>
 Les instance sont dynamiquement detectées <br>
 La commande: ansible-inventory -i aws_ec2.yaml --graph permet de lister les instances target <br>
 
