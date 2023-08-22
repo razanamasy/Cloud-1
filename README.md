@@ -19,6 +19,11 @@ Ne pas oublier de changer myip dans les security-group de l'instance EC2 wp-wep
 
 2) Générer un certificat ssl ACM avec hrazanam.net <sup>(*)</sup><br>
 
+<sup>(*)</sup> Si le certificat est en pending : <br>
+CMD : dig +short hrazanam.net <br>
+https://repost.aws/fr/knowledge-center/acm-certificate-pending-validation
+La commande permet d'obtenir la valeur associée à l'enregistrement CNAME si ce dernier a été ajouté à la bonne configuration DNS, et propagé avec succès.
+
 #### Subnets id pour Load Balancer (terraform)
 A recuperer dans votre console AWS
 
@@ -40,11 +45,6 @@ PMA_PASSWORD <br>
 ##### note 1 : Affiliation du certificat au LB est automatisé avec terraform 
 
 ##### note 2 : L’enregistrement DNS du LB a hrazanam est automatisé avec terraform 
-
-###### <sup>(*)</sup> Si le certificat est en pending : 
-CMD : dig +short hrazanam.net <br>
-https://repost.aws/fr/knowledge-center/acm-certificate-pending-validation
-La commande permet d'obtenir la valeur associée à l'enregistrement CNAME si ce dernier a été ajouté à la bonne configuration DNS, et propagé avec succès.
 
 ## Techno
 Docker-compose <br>
